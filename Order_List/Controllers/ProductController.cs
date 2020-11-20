@@ -8,16 +8,14 @@ namespace Order_List.Controllers
 {
     public class ProductController : ApiController
     {
+        ProductModel _model = new ProductModel();
+
         // GET: api/products
         [HttpGet]
         [Route("api/products")]
         public List<ProductModel> GetProducts()
         {
-            using (OrderListContext db = new OrderListContext())
-            {
-                return db.Products.Select(p => 
-                    new ProductModel { Id = p.Id, Name = p.Name, Price = p.Price, PhotoUrl = p.PhotoUrl }).ToList();
-            }
+            return _model.GetProducts();
         }
     }
 }

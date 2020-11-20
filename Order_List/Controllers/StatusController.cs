@@ -8,15 +8,14 @@ namespace Order_List.Controllers
 {
     public class StatusController : ApiController
     {
+        StatusModel _statusModel = new StatusModel();
+
         // GET: api/Statuses
         [HttpGet]
         [Route("api/statuses")]
         public List<StatusModel> GetStatuses()
         {
-            using(OrderListContext db = new OrderListContext())
-            {
-                return db.Statuses.Select(s=> new StatusModel { Id = s.Id, Name = s.Name }).ToList();
-            }
+            return _statusModel.GetStatuses();
         }
     }
 }

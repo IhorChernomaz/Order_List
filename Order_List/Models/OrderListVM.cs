@@ -11,14 +11,12 @@ namespace Order_List.Models
             public int Id { get; set; }
             public string Name { get; set; }
 
-            public List<StatusModel> GetStatusModelList(IEnumerable<Status> list)
+            public List<StatusModel> GetStatuses()
             {
-                var modelList = new List<StatusModel>();
-                foreach(var item in list)
+                using (OrderListContext db = new OrderListContext())
                 {
-                    modelList.Add(new StatusModel { Id = item.Id, Name = item.Name });
+                   return db.Statuses.Select(s => new StatusModel { Id = s.Id, Name = s.Name }).ToList();
                 }
-                return modelList;
             }
         }
 
@@ -29,17 +27,13 @@ namespace Order_List.Models
             public decimal Price { get; set; }
             public string PhotoUrl { get; set; }
 
-            public List<ProductModel> GetProductModelList(IEnumerable<Product> list)
+            public List<ProductModel> GetProducts()
             {
-                var modelList = new List<ProductModel>();
-                foreach (var item in list)
+                using (OrderListContext db = new OrderListContext())
                 {
-                    modelList.Add(new ProductModel 
-                    {
-                        Id = item.Id, Name = item.Name, Price = item.Price, PhotoUrl = item.PhotoUrl 
-                    });
+                    return db.Products.Select(p =>
+                        new ProductModel { Id = p.Id, Name = p.Name, Price = p.Price, PhotoUrl = p.PhotoUrl }).ToList();
                 }
-                return modelList;
             }
         }
 
@@ -54,9 +48,35 @@ namespace Order_List.Models
                 new Order { Id = model.Id, Count = model.Count, ProductId = model.ProductId, StatusId = model.StatusId };
             public OrderModel GetOrderModel(Order model) =>
                 new OrderModel { Id = model.Id, Count = model.Count, ProductId = model.ProductId, StatusId = model.StatusId };
-            public List<OrderModel> GetOrderModelList(IEnumerable<Order> list)
+
+            public List<OrderModel> GetOrders()
             {
-                return list.Select(l => new OrderModel { Id = l.Id, Count = l.Count, StatusId = l.StatusId, ProductId = l.ProductId }).ToList();
+                var repositoryOrder = new OrderRepository();
+                return repositoryOrder.GetAll().Select(l => new OrderModel { Id = l.Id, Count = l.Count, StatusId = l.StatusId, ProductId = l.ProductId }).ToList();
+            }
+
+            public OrderModel AddOrder(OrderModel model)
+            {
+                var repositoryOrder = new OrderRepository();
+                Order order = repositoryOrder.Create(GetOrder(model));
+                repositoryOrder.Save();
+                return GetOrderModel(order);
+            }
+
+            public OrderModel UpdateOrder(OrderModel model)
+            {
+                var repositoryOrder = new OrderRepository();
+                repositoryOrder.Update(GetOrder(model));
+                repositoryOrder.Save();
+                return model;
+            }
+
+            public OrderModel DeleteOrder(int id)
+            {
+                var repositoryOrder = new OrderRepository();
+                Order order = repositoryOrder.Delete(id);
+                repositoryOrder.Save();
+                return GetOrderModel(order);
             }
         }
     }
