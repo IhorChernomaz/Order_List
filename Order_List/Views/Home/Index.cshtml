@@ -58,10 +58,10 @@
                         <div class="col-xs-6">
                             <div v-if="item.isEdit" class="order-button-block">
                                 <button v-on:click="updateOrder(item.id, index)" class="btn btn-success margin-right-10">Сохранить</button>
-                                <button v-on:click="editTypeOff(item,index)" class="btn btn-default">Отмена</button>
+                                <button v-on:click="editTypeOff(item, index)" class="btn btn-default">Отмена</button>
                             </div>
                             <div v-else class="order-button-block">
-                                <button v-on:click="editTypeOn(item,index)" class="btn btn-default margin-right-10">Изменить</button>
+                                <button v-on:click="{ !classDisabled ? editTypeOn(item, index) : ''}" v-bind:class="classDisabled" class="btn btn-default margin-right-10">Изменить</button>
                                 <button v-on:click="showDeleteModal(item.id, index)" class="btn btn-default">Удалить</button>
                             </div>
                         </div>

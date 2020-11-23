@@ -16,6 +16,7 @@ var app = new Vue({
         dataFull: [],
         deleteId: '',
         orderIndexInArray: '',
+        classDisabled:'',
 
         modalSelect: '',
         modalStatus: '',
@@ -45,9 +46,11 @@ var app = new Vue({
             if (this.modalSelect != "") this.modalPrice = this.dataProducts.find(product => product.id === this.modalSelect).price;
         },
         editProductSelect: function () {
-            let product = this.dataProducts.find(product => product.id === this.editProductSelect);
-            this.editPrice = product.price;
-            this.editPhotoUrl = product.photoUrl;
+            if (this.editProductSelect != "") {
+                let product = this.dataProducts.find(product => product.id === this.editProductSelect);
+                this.editPrice = product.price;
+                this.editPhotoUrl = product.photoUrl;
+            }
         }
     },
     mounted() {
@@ -138,6 +141,7 @@ var app = new Vue({
             this.editCount = item.count;
             this.editProductSelect = item.product.id;
             this.editStatusSelect = item.status.id;
+            this.classDisabled = "disabled";
         },
         editTypeOff(item, index) {
             this.dataFull[index].isEdit = false;
@@ -145,6 +149,7 @@ var app = new Vue({
             this.editStatusSelect = '';
             editPhotoUrl = '';
             this.editCount = 0;
+            this.classDisabled = '';
         },
     },
 })
