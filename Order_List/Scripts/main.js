@@ -1,5 +1,4 @@
 ﻿
-
 var app = new Vue({
     el: '#app',
     data: {
@@ -17,9 +16,17 @@ var app = new Vue({
         dataFull: [],
         deleteId: '',
         orderIndexInArray: '',
+
         modalSelect: '',
+        modalStatus: '',
         modalPrice: 0,
         modalCount: 0,
+
+        editProductSelect: '',
+        editStatusSelect: '',
+        editPhotoUrl: '',
+        editPrice: 0,
+        editCount: 0,
 
         loading: true,
         errored: false,
@@ -28,11 +35,19 @@ var app = new Vue({
     {
         modalSumm: function () {
             return this.modalCount * this.modalPrice;
+        },
+        editSumm: function () {
+            return this.editCount * this.editPrice;
         }
     },
     watch: {
         modalSelect: function () {
-            this.modalPrice = this.dataProducts.find(product => product.id === this.modalSelect).price;
+            if (this.modalSelect != "") this.modalPrice = this.dataProducts.find(product => product.id === this.modalSelect).price;
+        },
+        editProductSelect: function () {
+            let product = this.dataProducts.find(product => product.id === this.editProductSelect);
+            this.editPrice = product.price;
+            this.editPhotoUrl = product.photoUrl;
         }
     },
     mounted() {
@@ -65,10 +80,11 @@ var app = new Vue({
                 })
                 .catch(error => { console.log(error); });
         },
-        updateOrder() {
-            let data = { id: 1, productId: this.modalSelect, statusId: 2, count: this.modalCount }
+        updateOrder(id, index) {
+            let data = { id: id, productId: this.editProductSelect, statusId: this.editStatusSelect, count: this.editCount }
             axios.post(this.url.baseApi + this.url.orders + this.url.update, data)
                 .then(response => {
+                    this.setOrderToArray(response.data, index);
                     console.log(response.data);
                 })
                 .catch(error => { console.log(error); });
@@ -92,16 +108,43 @@ var app = new Vue({
                 count: obj.count,
                 status: this.dataStatuses.find(status => status.id === obj.statusId),
                 product: this.dataProducts.find(product => product.id === obj.productId),
+                isEdit: false,
+            });
+        },
+        setOrderToArray(obj, index) {
+            Vue.set(this.dataFull, index, {
+                id: obj.id,
+                count: obj.count,
+                status: this.dataStatuses.find(status => status.id === obj.statusId),
+                product: this.dataProducts.find(product => product.id === obj.productId),
+                isEdit: false,
             });
         },
         showAddOrderModal() {
             $("#add-order-modal").modal("show");
+            this.modalSelect = '';
+            this.modalStatus = '';
+            this.modalCount = 0;
+            this.modalPrice = 0;
         },
         showDeleteModal(id, index) {
             $("#delete-modal").modal("show");
             console.log(index);
             this.deleteId = id;
             this.orderIndexInArray = index;
+        },
+        editTypeOn(item, index) {
+            this.dataFull[index].isEdit = true;
+            this.editCount = item.count;
+            this.editProductSelect = item.product.id;
+            this.editStatusSelect = item.status.id;
+        },
+        editTypeOff(item, index) {
+            this.dataFull[index].isEdit = false;
+            this.editProductSelect = '';
+            this.editStatusSelect = '';
+            editPhotoUrl = '';
+            this.editCount = 0;
         },
     },
 })

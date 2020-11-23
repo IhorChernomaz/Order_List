@@ -9,35 +9,59 @@
         <div class="orders-background">
             <div v-for="(item, index) in dataFull" :key="item.id" class="row order-template" v-bind:data-id="item.id">
                 <div class="col-md-2 photo-container">
-                    <img v-bind:src="item.product.photoUrl" class="img-responsive product-photo" alt="product-photo" />
+                    <img v-bind:src="[ item.isEdit? editPhotoUrl : item.product.photoUrl ]" class="img-responsive product-photo" alt="product-photo" />
                 </div>
                 <div class="col-md-10 info-container">
                     <div class="row margin-top-bottom-10">
                         <div class="col-xs-8">
-                            <input class="form-control min-width-100" type="text" v-bind:value="item.product.name" readonly />
+                            <select v-if="item.isEdit" v-model="editProductSelect" class="form-control min-width-100">
+                                    <option v-for="product in dataProducts" v-bind:value="product.id">{{ product.name }}</option>
+                            </select>
+                            <input v-else class="form-control min-width-100" type="text" v-bind:value="item.product.name" readonly />
                         </div>
                         <div class="col-xs-4">
-                            <input class="form-control" type="text" v-bind:value="item.status.name" readonly />
+                            <select v-if="item.isEdit" v-model="editStatusSelect" class="form-control">
+                                <option v-for="status in dataStatuses" v-bind:value="status.id">{{ status.name }}</option>
+                            </select>
+                            <input v-else class="form-control" type="text" v-bind:value="item.status.name" readonly />
                         </div>
                     </div>
                     <div class="row product-information margin-top-bottom-10">
-                        <div class="col-xs-6">
+                        <div v-if="item.isEdit" class="col-xs-6">
                             <div class="display-flex">
-                                <label class="info-label">Цена:</label>
+                                <label class="width-100">Цена:</label>
+                                <p>{{ editPrice }}$</p>
+                            </div>
+                            <div class="display-flex" style="align-items:center;">
+                                <label class="width-100">Количество:</label>
+                                <input v-model.number="editCount" class="form-control input-sm width-100" type="number" min="0" step="1" />
+                            </div>
+                            <div class="display-flex">
+                                <label class="width-100">Сумма:</label>
+                                <p>{{ editSumm }}$</p>
+                            </div>
+                        </div>
+                        <div v-else class="col-xs-6">
+                            <div class="display-flex">
+                                <label class="width-100">Цена:</label>
                                 <p>{{ item.product.price }}$</p>
                             </div>
                             <div class="display-flex">
-                                <label class="info-label">Количество:</label>
+                                <label class="width-100">Количество:</label>
                                 <p>{{ item.count }}</p>
                             </div>
                             <div class="display-flex">
-                                <label class="info-label">Сумма:</label>
+                                <label class="width-100">Сумма:</label>
                                 <p>{{ item.count * item.product.price }}$</p>
                             </div>
                         </div>
                         <div class="col-xs-6">
-                            <div class="order-button-block">
-                                <button class="btn btn-default" style="margin-right:5px;">Изменить</button>
+                            <div v-if="item.isEdit" class="order-button-block">
+                                <button v-on:click="updateOrder(item.id, index)" class="btn btn-success margin-right-10">Сохранить</button>
+                                <button v-on:click="editTypeOff(item,index)" class="btn btn-default">Отмена</button>
+                            </div>
+                            <div v-else class="order-button-block">
+                                <button v-on:click="editTypeOn(item,index)" class="btn btn-default margin-right-10">Изменить</button>
                                 <button v-on:click="showDeleteModal(item.id, index)" class="btn btn-default">Удалить</button>
                             </div>
                         </div>
@@ -66,7 +90,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="count">Количество:</label>
-                                <input v-model.number="modalCount" class="form-control" type="number" id="count" />
+                                <input v-model.number="modalCount" class="form-control" type="number" id="count" min="0" step="1" />
                             </div>
                             <div class="display-flex">
                                 <label class="modal-label">Цена:</label>
